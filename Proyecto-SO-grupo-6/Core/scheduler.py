@@ -2,7 +2,6 @@ from collections import deque
 
 class QueueManager:
     def __init__(self):
-        # Utilización de la estructura eficiente collections.deque para la Ready Queue
         self.ready_queue = deque()
         self.finished_processes = []
 

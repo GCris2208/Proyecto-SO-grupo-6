@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Simulador de Planificación de CPU</title>
+</head>
+<body>
+    <h1>Simulador de CPU - Equipo 6</h1>
+    
+    <div>
+        <label>Procesos (Formato: PID,Llegada,Ráfaga,Prioridad):</label><br>
+        <textarea id="procesosInput" rows="6" cols="40">
+P1,0,8,3
+P2,1,4,1
+P3,2,9,4
+P4,3,5,2</textarea>
+    </div>
+    <br>
+    <div>
+        <label>Algoritmo:</label>
+        <select id="algoritmo">
+            <option value="fcfs">FCFS</option>
+            <option value="sjf">SJF (No Apropiativo)</option>
+            <option value="priority">Prioridades (No Apropiativo)</option>
+            <option value="rr">Round Robin</option>
+        </select>
+    </div>
+    <br>
+    <div>
+        <label>Quantum (solo RR):</label>
+        <input type="number" id="quantum" value="3">
+    </div>
+    <br>
+    <button onclick="simular()">Simular</button>
+
+    <div id="resultados" style="margin-top: 20px;"></div>
+
+    <script>
+        async function simular() {
+            const data = {
+                procesos: document.getElementById('procesosInput').value,
+                algoritmo: document.getElementById('algoritmo').value,
+                quantum: parseInt(document.getElementById('quantum').value) || 0
+            };
+
+            const response = await fetch('http://localhost:8000/simulate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            mostrarResultados(result);
+        }
+
+        function mostrarResultados(res) {
+            const div = document.getElementById('resultados');
+            if (res.error) {
+                div.innerHTML = `<p style="color:red">Error: ${res.error}</p>`;
+                return;
+            }
+            
+            let html = '<h2>Resultados</h2><table border="1" cellpadding="5"><tr><th>PID</th><th>Retorno</th><th>Espera</th><th>Respuesta</th></tr>';
+            res.procesos.forEach(p => {
+                html += `<tr><td>${p.pid}</td><td>${p.turnaround_time}</td><td>${p.waiting_time}</td><td>${p.response_time}</td></tr>`;
+            });
+            html += '</table>';
+
+            html += '<h3>Métricas Globales</h3><ul>';
+            html += `<li>Espera Promedio: ${res.metricas.promedio_espera}</li>`;
+            html += `<li>Retorno Promedio: ${res.metricas.promedio_retorno}</li>`;
+            html += `<li>Uso CPU: ${res.metricas.utilizacion_cpu}%</li></ul>`;
+            
+            html += '<h3>Gantt (Orden de finalización)</h3><p>';
+            res.procesos.sort((a, b) => a.completion_time - b.completion_time).forEach(p => {
+                html += `[ ${p.pid} ] -> ${p.completion_time} &nbsp;&nbsp;`;
+            });
+            html += '</p>';
+
+            div.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
