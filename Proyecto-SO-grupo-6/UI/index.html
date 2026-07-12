@@ -1,84 +1,66 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Simulador de Planificación de CPU</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Simulador de CPU - Grupo 6</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <h1>Simulador de CPU - Equipo 6</h1>
-    
-    <div>
-        <label>Procesos (Formato: PID,Llegada,Ráfaga,Prioridad):</label><br>
-        <textarea id="procesosInput" rows="6" cols="40">
-P1,0,8,3
-P2,1,4,1
-P3,2,9,4
-P4,3,5,2</textarea>
-    </div>
-    <br>
-    <div>
-        <label>Algoritmo:</label>
-        <select id="algoritmo">
+  <header>
+    <h1>Simulador de Planificación de CPU</h1>
+    <p class="sub">Proyecto SO - Grupo 6 · Frontend conectado al backend Python</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Entrada</h2>
+
+      <label for="procesos">Procesos <small>(uno por línea: <code>PID,llegada,ráfaga,prioridad</code>)</small></label>
+      <textarea id="procesos" rows="6" spellcheck="false">P1,0,5,1
+P2,2,3,2
+P3,4,1,3
+P4,5,2,1</textarea>
+
+      <div class="row">
+        <div>
+          <label for="algoritmo">Algoritmo</label>
+          <select id="algoritmo">
             <option value="fcfs">FCFS</option>
-            <option value="sjf">SJF (No Apropiativo)</option>
-            <option value="priority">Prioridades (No Apropiativo)</option>
+            <option value="sjf">SJF</option>
+            <option value="priority">Prioridad</option>
             <option value="rr">Round Robin</option>
-        </select>
-    </div>
-    <br>
-    <div>
-        <label>Quantum (solo RR):</label>
-        <input type="number" id="quantum" value="3">
-    </div>
-    <br>
-    <button onclick="simular()">Simular</button>
+          </select>
+        </div>
+        <div>
+          <label for="quantum">Quantum <small>(solo RR)</small></label>
+          <input type="number" id="quantum" min="1" value="3" />
+        </div>
+        <div>
+          <label for="backend">Backend URL</label>
+          <input type="text" id="backend" value="http://localhost:8000" />
+        </div>
+      </div>
 
-    <div id="resultados" style="margin-top: 20px;"></div>
+      <button id="run">Simular</button>
+      <div id="status" class="status"></div>
+    </section>
 
-    <script>
-        async function simular() {
-            const data = {
-                procesos: document.getElementById('procesosInput').value,
-                algoritmo: document.getElementById('algoritmo').value,
-                quantum: parseInt(document.getElementById('quantum').value) || 0
-            };
+    <section id="resultsCard" class="card hidden">
+      <h2>Resultados</h2>
+      <div id="results"></div>
 
-            const response = await fetch('http://localhost:8000/simulate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
+      <h3>Métricas globales</h3>
+      <div id="metricas" class="metricas"></div>
 
-            const result = await response.json();
-            mostrarResultados(result);
-        }
+      <h3>Diagrama de Gantt</h3>
+      <div id="gantt" class="gantt"></div>
 
-        function mostrarResultados(res) {
-            const div = document.getElementById('resultados');
-            if (res.error) {
-                div.innerHTML = `<p style="color:red">Error: ${res.error}</p>`;
-                return;
-            }
-            
-            let html = '<h2>Resultados</h2><table border="1" cellpadding="5"><tr><th>PID</th><th>Retorno</th><th>Espera</th><th>Respuesta</th></tr>';
-            res.procesos.forEach(p => {
-                html += `<tr><td>${p.pid}</td><td>${p.turnaround_time}</td><td>${p.waiting_time}</td><td>${p.response_time}</td></tr>`;
-            });
-            html += '</table>';
+      <h3>Respuesta cruda (JSON)</h3>
+      <pre id="raw"></pre>
+    </section>
+  </main>
 
-            html += '<h3>Métricas Globales</h3><ul>';
-            html += `<li>Espera Promedio: ${res.metricas.promedio_espera}</li>`;
-            html += `<li>Retorno Promedio: ${res.metricas.promedio_retorno}</li>`;
-            html += `<li>Uso CPU: ${res.metricas.utilizacion_cpu}%</li></ul>`;
-            
-            html += '<h3>Gantt (Orden de finalización)</h3><p>';
-            res.procesos.sort((a, b) => a.completion_time - b.completion_time).forEach(p => {
-                html += `[ ${p.pid} ] -> ${p.completion_time} &nbsp;&nbsp;`;
-            });
-            html += '</p>';
-
-            div.innerHTML = html;
-        }
-    </script>
+  <script src="script.js"></script>
 </body>
 </html>
