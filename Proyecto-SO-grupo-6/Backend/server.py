@@ -49,20 +49,33 @@ def simulate():
             criterio_2 = data.get('criterio_2', 'art')
             quantum = int(data.get('quantum', 2))
 
-            # Ejecutar todos los algoritmos (pasando copy.deepcopy() para no mutar la lista original)
-            res_fcfs, _ = run_fcfs(copy.deepcopy(lista_procesos))
-            res_sjf, _ = run_sjf(copy.deepcopy(lista_procesos))
-            res_srtf, _ = run_srtf(copy.deepcopy(lista_procesos))
-            res_prio, _ = run_priority(copy.deepcopy(lista_procesos))
-            res_rr, _ = run_round_robin(copy.deepcopy(lista_procesos), quantum)
+        # Función local para contar cuántas veces cambia de proceso el procesador
+            def contar_interrupciones(gantt):
+                if not gantt:
+                    return 0
+                interrupciones = 0
+                pid_actual = gantt[0]['pid']
+                for bloque in gantt[1:]:
+                    if bloque['pid'] != pid_actual:
+                        interrupciones += 1
+                        pid_actual = bloque['pid']
+                return interrupciones
 
-            # Calcular promedios
+            # Ejecuta todos los algoritmos (pasando copy.deepcopy() y guardando el gantt)
+            res_fcfs, gantt_fcfs = run_fcfs(copy.deepcopy(lista_procesos))
+            res_sjf, gantt_sjf = run_sjf(copy.deepcopy(lista_procesos))
+            res_srtf, gantt_srtf = run_srtf(copy.deepcopy(lista_procesos))
+            res_prio, gantt_prio = run_priority(copy.deepcopy(lista_procesos))
+            res_rr, gantt_rr = run_round_robin(
+                copy.deepcopy(lista_procesos), quantum)
+
+            # Calcula promedios e inyectar las interrupciones calculadas
             resultados = {
-                "FCFS": calcular_promedios(res_fcfs),
-                "SJF": calcular_promedios(res_sjf),
-                "SRTF": calcular_promedios(res_srtf),
-                "Prioridad": calcular_promedios(res_prio),
-                "Round Robin": calcular_promedios(res_rr)
+                "FCFS": {**calcular_promedios(res_fcfs), "interrupciones": contar_interrupciones(gantt_fcfs)},
+                "SJF": {**calcular_promedios(res_sjf), "interrupciones": contar_interrupciones(gantt_sjf)},
+                "SRTF": {**calcular_promedios(res_srtf), "interrupciones": contar_interrupciones(gantt_srtf)},
+                "Prioridad": {**calcular_promedios(res_prio), "interrupciones": contar_interrupciones(gantt_prio)},
+                "Round Robin": {**calcular_promedios(res_rr), "interrupciones": contar_interrupciones(gantt_rr)}
             }
 
             # Obtener el ganador (o ganadores)
@@ -102,6 +115,10 @@ def simulate():
 
         # 5. Cálculo de métricas globales
         metricas = calculate_global_metrics(resultados)
+
+        # proceso convoy
+        metricas['procesos_convoy'] = [
+            p.pid for p in resultados if p.waiting_time > 15]
 
         # 6. Construir la respuesta final de la simulación
         response_data = {

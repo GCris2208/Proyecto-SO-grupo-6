@@ -2,13 +2,12 @@
 def calcular_promedios(procesos_terminados):
     cantidad = len(procesos_terminados)
     if cantidad == 0:
-        return {"awt": 0, "att": 0, "art": 0, "interrupciones": 0}
+        return {"awt": 0, "att": 0, "art": 0}
 
     return {
         "awt": sum(p.waiting_time for p in procesos_terminados) / cantidad,
         "att": sum(p.turnaround_time for p in procesos_terminados) / cantidad,
         "art": sum(p.response_time for p in procesos_terminados) / cantidad,
-        "interrupciones": sum(p.interrupciones for p in procesos_terminados)
     }
 
 
