@@ -3,7 +3,7 @@ from flask_cors import CORS
 import traceback
 import copy
 
-# Importaciones de tu lógica central
+# Importaciones
 from Core.process import Process
 from Core.algorithms.fcfs import run_fcfs
 from Core.algorithms.srtf import run_srtf
