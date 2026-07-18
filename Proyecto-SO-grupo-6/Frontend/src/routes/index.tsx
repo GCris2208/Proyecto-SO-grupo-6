@@ -32,18 +32,44 @@ export const Route = createFileRoute("/")({
 });
 
 const TEST_1: Proceso[] = [
-  { pid: "P1", llegada: 0, rafaga: 7, prioridad: 1 },
-  { pid: "P2", llegada: 2, rafaga: 4, prioridad: 1 },
-  { pid: "P3", llegada: 4, rafaga: 1, prioridad: 1 },
-  { pid: "P4", llegada: 5, rafaga: 4, prioridad: 1 },
+  { pid: "P1", llegada: 0, rafaga: 8, prioridad: 3 },
+  { pid: "P2", llegada: 1, rafaga: 4, prioridad: 1 },
+  { pid: "P3", llegada: 2, rafaga: 9, prioridad: 4 },
+  { pid: "P4", llegada: 3, rafaga: 5, prioridad: 2 },
 ];
 
 const TEST_2: Proceso[] = [
-  { pid: "P1", llegada: 0, rafaga: 8, prioridad: 3 },
-  { pid: "P2", llegada: 1, rafaga: 4, prioridad: 1 },
-  { pid: "P3", llegada: 2, rafaga: 2, prioridad: 4 },
+  { pid: "P1", llegada: 0, rafaga: 10, prioridad: 2 },
+  { pid: "P2", llegada: 2, rafaga: 3,  prioridad: 1 },
+  { pid: "P3", llegada: 4, rafaga: 6,  prioridad: 3 },
+  { pid: "P4", llegada: 6, rafaga: 1,  prioridad: 1 },
+  { pid: "P5", llegada: 8, rafaga: 4,  prioridad: 2 },
+];
+
+const TEST_3: Proceso[] = [
+  { pid: "P1", llegada: 0, rafaga: 20, prioridad: 3 },
+  { pid: "P2", llegada: 1, rafaga: 2, prioridad: 2 },
+  { pid: "P3", llegada: 2, rafaga: 2, prioridad: 1 },
+  { pid: "P4", llegada: 4, rafaga: 18, prioridad: 1 },
+  { pid: "P5", llegada: 5, rafaga: 1, prioridad: 1 },
+];
+
+// Edge Case: Llegadas Simultáneas (Prueba los desempates)
+const TEST_4: Proceso[] = [
+  { pid: "P1", llegada: 0, rafaga: 4, prioridad: 3 },
+  { pid: "P2", llegada: 0, rafaga: 2, prioridad: 1 },
+  { pid: "P3", llegada: 0, rafaga: 5, prioridad: 4 },
+  { pid: "P4", llegada: 0, rafaga: 1, prioridad: 2 },
+  { pid: "P5", llegada: 0, rafaga: 3, prioridad: 5 },
+];
+
+// Edge Case: Ráfagas Extremas (Desbalance masivo para Round Robin)
+const TEST_5: Proceso[] = [
+  { pid: "P1", llegada: 0, rafaga: 1, prioridad: 2 },
+  { pid: "P2", llegada: 1, rafaga: 15, prioridad: 1 },
+  { pid: "P3", llegada: 2, rafaga: 1, prioridad: 3 },
   { pid: "P4", llegada: 3, rafaga: 1, prioridad: 2 },
-  { pid: "P5", llegada: 4, rafaga: 3, prioridad: 2 },
+  { pid: "P5", llegada: 4, rafaga: 1, prioridad: 1 },
 ];
 
 const API_URL = "http://localhost:8000/simulate";
@@ -289,12 +315,27 @@ function SimuladorPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-2">
+              
               <Button variant="secondary" size="sm" onClick={() => setProcesos(TEST_1)}>
                 Test 1 · Básico
               </Button>
+              
               <Button variant="secondary" size="sm" onClick={() => setProcesos(TEST_2)}>
-                Test 2 · Prioridades
+                Test 2 · Básico 2
               </Button>
+              
+              <Button variant="secondary" size="sm" onClick={() => setProcesos(TEST_3)}>
+                Test 3 ·  Convoy
+              </Button>
+              
+              <Button variant="secondary" size="sm" onClick={() => setProcesos(TEST_4)}>
+                Test 4 · Llegadas Simultáneas
+              </Button>
+              
+              <Button variant="secondary" size="sm" onClick={() => setProcesos(TEST_5)}>
+                Test 5 · Ráfagas
+              </Button>
+
             </CardContent>
           </Card>
 

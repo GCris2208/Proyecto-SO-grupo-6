@@ -113,12 +113,24 @@ def simulate():
         else:
             return jsonify({"error": "Algoritmo no reconocido"}), 400
 
-        # 5. Cálculo de métricas globales
+# 5. Cálculo de métricas globales
         metricas = calculate_global_metrics(resultados)
 
         # proceso convoy
         metricas['procesos_convoy'] = [
             p.pid for p in resultados if p.waiting_time > 15]
+
+        # RECUENTO DE INTERRUPCIONES PARA MODO NORMAL
+        interrupciones = 0
+        if historial_gantt:
+            pid_actual = historial_gantt[0]['pid']
+            for bloque in historial_gantt[1:]:
+                if bloque['pid'] != pid_actual:
+                    interrupciones += 1
+                    pid_actual = bloque['pid']
+
+        # Sobrescribimos el valor erróneo de metrics.py
+        metricas['interrupciones'] = interrupciones
 
         # 6. Construir la respuesta final de la simulación
         response_data = {

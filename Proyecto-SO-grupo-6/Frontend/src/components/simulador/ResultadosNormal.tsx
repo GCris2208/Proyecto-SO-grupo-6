@@ -109,10 +109,10 @@ export function ResultadosNormal({ data }: { data: SimulacionNormal }) {
           <Card>
             <CardContent className="p-4">
               <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
-                Interrupciones · Tiempo Ocioso
+                Cambios de Contexto · Tiempo Ocioso
               </div>
               <div className="text-sm font-medium">
-                {metricas.interrupciones} interrupciones · {fmt(metricas.tiempo_ocioso)} ocioso
+                {metricas.interrupciones} Cambios de Contexto · {fmt(metricas.tiempo_ocioso)} ocioso
               </div>
             </CardContent>
           </Card>
